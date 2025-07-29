@@ -55,7 +55,11 @@
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
-			"esbuild"
+			"esbuild",
+			"msgpackr-extract"
 		]
+	},
+	"dependencies": {
+		"colyseus.js": "^0.16.19"
 	}
 }
