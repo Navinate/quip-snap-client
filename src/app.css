@@ -111,6 +111,11 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* body {
+  background-color: oklch(0.147 0.004 49.25);
+  color: white;
+} */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
