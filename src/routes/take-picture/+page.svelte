@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Button from '$lib/components/ui/Button/Button.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import { gameStore } from '$lib/stores/gameStore';
+	import { compressImage } from '$lib/helpers/image';
+
+	$: connected = $gameStore.connected;
 
 	let videoElement: HTMLVideoElement | null = null;
 	let canvasElement: HTMLCanvasElement | null = null;
@@ -13,7 +17,8 @@
 		if (!navigator.mediaDevices) {
 			throw new Error('Camera API not supported');
 		}
-		stream = await navigator.mediaDevices.getUserMedia({ video: true });
+		const constraints = { video: { facingMode: { ideal: 'environment' } } };
+		stream = await navigator.mediaDevices.getUserMedia(constraints);
 		if (videoElement) {
 			videoElement.srcObject = stream;
 			await videoElement.play();
@@ -22,17 +27,13 @@
 
 	function takePhoto() {
 		if (!videoElement || !canvasElement) return;
-
 		canvasElement.width = videoElement.videoWidth;
 		canvasElement.height = videoElement.videoHeight;
-
 		const context = canvasElement.getContext('2d');
 		if (!context) return;
-
 		context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-		capturedImage = canvasElement.toDataURL('image/png');
+		capturedImage = canvasElement.toDataURL('image/jpeg');
 		photoTaken = true;
-
 		stopCamera();
 	}
 
@@ -42,8 +43,16 @@
 		startCamera();
 	}
 
-	function submitPhoto() {
+	async function submitPhoto() {
+		if (!capturedImage || !gameStore) return;
+		const processedImage = await compressImage(capturedImage, 0.5, 600);
 
+		// This is exactly what gets sent to the server
+		const sizeInBytes = new Blob([processedImage]).size;
+		const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+		const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
+		console.log(`Sending to server: ${sizeInBytes} bytes (${sizeInKB} KB, ${sizeInMB} MB)`);
+		gameStore.sendMessage('photo', processedImage);
 	}
 
 	function stopCamera() {
@@ -53,9 +62,9 @@
 		}
 	}
 
-	onMount(()=> {
+	onMount(() => {
 		startCamera();
-	})
+	});
 </script>
 
 <main class="flex min-h-screen flex-col items-center justify-center">
