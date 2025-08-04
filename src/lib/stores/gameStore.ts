@@ -1,6 +1,7 @@
-import { get, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { Client, Room } from 'colyseus.js';
 import { getStateCallbacks } from 'colyseus.js';
+import { goto } from '$app/navigation';
 
 interface ClientGameState {
 	room: Room | null;
@@ -9,6 +10,12 @@ interface ClientGameState {
 	error: string | null;
 	currentRound?: number;
 	currentPrompt?: string;
+}
+
+export interface GameSettings {
+	photoTime: number;
+	votingTime: number;
+	numRounds: number;
 }
 
 // interface ServerGameState {
@@ -47,6 +54,7 @@ function createGameStore() {
 			console.log('Round started at:', data.timestamp);
 			// Handle round timing logic
 		});
+		// TODO: add voting time, round over onMessage listeners
 
 		room.onMessage('game_complete', () => {
 			console.log('Game completed!');
@@ -62,7 +70,7 @@ function createGameStore() {
 				set({ room, connected: true, isHost: false, error: null });
 				return room;
 			} catch (error) {
-				set({ room: null, connected: false, isHost: false, error: error.message });
+				set({ room: null, connected: false, isHost: false, error: (error as Error).message });
 				throw error;
 			}
 		},
@@ -72,12 +80,20 @@ function createGameStore() {
 				return { room: null, connected: false, isHost: false, error: null };
 			});
 		},
-		// sendMessage(type: string, data) {
-		// 	update((state) => {
-		// 		state.room?.send(type, data);
-		// 		return state;
-		// 	});
-		// },
+		leaveGame() {
+			gameStore.disconnect();
+			goto('/');
+		},
+		startGame(gameSettings: GameSettings) {
+			//put code to check if user is host
+			this.sendMessage("game_start", gameSettings)
+		},
+		sendMessage(type: string, data?: unknown) {
+			update((state) => {
+				state.room?.send(type, data);
+				return state;
+			});
+		},
 		// Add these methods to your gameStore
 		async createRoom(name: string) {
 			try {
@@ -86,7 +102,7 @@ function createGameStore() {
 				set({ room, connected: true, isHost: true, error: null });
 				return room;
 			} catch (error) {
-				set({ room: null, connected: false, isHost: true, error: error.message });
+				set({ room: null, connected: false, isHost: true, error: (error as Error).message });
 
 				throw error;
 			}
@@ -100,7 +116,7 @@ function createGameStore() {
 				set({ room, connected: true, isHost: false, error: null });
 				return room;
 			} catch (error) {
-				set({ room: null, connected: false, isHost: false, error: error.message });
+				set({ room: null, connected: false, isHost: false, error: (error as Error).message });
 				throw error;
 			}
 		}
