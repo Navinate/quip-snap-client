@@ -3,25 +3,16 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { gameStore } from '$lib/stores/gameStore';
 	import { get } from 'svelte/store';
-	import QRGenerator from '$lib/components/QRGenerator.svelte';
 	const currentState = get(gameStore);
-	const lobbyID = currentState.room?.roomId || '';
-
-	function startGame() {}
 </script>
 
 <main class="flex min-h-screen items-center justify-center">
 	<Card.Root>
 		<Card.Header>
-			<Card.Title>Waiting for game to start</Card.Title>
-			<Card.Description>{lobbyID}</Card.Description>
+			<Card.Title>Voting Time!</Card.Title>
+			<Card.Description>Please select your favorite photo!</Card.Description>
 		</Card.Header>
 		<Card.Content class="flex flex-col gap-1">
-			
-			{#if currentState.isHost}
-				<Button onclick={startGame}>Start Game</Button>
-			{/if}
-			<QRGenerator text={lobbyID} size={250} />
 			<Button href="/">Leave Room</Button>
 		</Card.Content>
 	</Card.Root>
