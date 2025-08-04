@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { Client, Room } from 'colyseus.js';
 import { getStateCallbacks } from 'colyseus.js';
 import { goto } from '$app/navigation';
@@ -36,6 +36,8 @@ function createGameStore() {
 		// Listen to any state changes
 		$(room.state).onChange(() => {
 			console.log('State Changed');
+			console.log("hostID:",room.state.hostID)
+			console.log("your ID:", room.sessionId)
 			update((state) => ({
 				...state,
 				currentRound: room.state.roundIndex,
@@ -54,10 +56,6 @@ function createGameStore() {
 		room.onMessage('game_complete', () => {
 			console.log('Game completed!');
 		});
-
-		// room.onMessage('new_host', () => {
-
-		// })
 	}
 
 	return {
@@ -79,16 +77,15 @@ function createGameStore() {
 			if (reconnectionToken) {
 				console.log('attempting to reconnect because token exists', reconnectionToken);
 				try {
-					const room = await client.reconnect(reconnectionToken);
-
+					const room: Room = await client.reconnect(reconnectionToken);
 					setupRoomListeners(room);
 					set({
 						room,
 						connected: true,
-						isHost: sessionStorage.getItem('isHost') === 'true',
+						isHost: room.sessionId === room.state.hostID,
 						error: null
 					});
-					console.log('successfully reconnected!');
+					console.log('successfully reconnected!', get(gameStore).isHost);
 				} catch (error) {
 					set({ room: null, connected: false, isHost: false, error: (error as Error).message });
 					console.log('Room does not exist anymore');
@@ -100,7 +97,6 @@ function createGameStore() {
 			try {
 				const room = await client.create('game_room', { name: name });
 				sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
-				sessionStorage.setItem('isHost', 'true');
 				setupRoomListeners(room);
 				set({ room, connected: true, isHost: true, error: null });
 				return room;
@@ -115,7 +111,6 @@ function createGameStore() {
 				// This only joins existing rooms, doesn't create new ones
 				const room = await client.joinById(roomID, { name: name });
 				sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
-				sessionStorage.setItem('isHost', 'false');
 				setupRoomListeners(room);
 				set({ room, connected: true, isHost: false, error: null });
 				return room;
@@ -132,7 +127,7 @@ function createGameStore() {
 		},
 		leaveGame() {
 			gameStore._disconnect();
-			sessionStorage.removeItem('reconnectionToken');
+			sessionStorage.clear();
 			goto('/');
 		},
 		startGame(gameSettings: GameSettings) {
