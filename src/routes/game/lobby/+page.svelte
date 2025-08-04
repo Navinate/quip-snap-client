@@ -5,14 +5,15 @@
 	import type { GameSettings } from '$lib/stores/gameStore';
 	import { get } from 'svelte/store';
 	import QRGenerator from '$lib/components/QRGenerator.svelte';
+	import { onMount } from 'svelte';
 	const currentState = get(gameStore);
-	const lobbyID = currentState.room?.roomId || '';
 
 	let gameSettings: GameSettings = {
 		numRounds: 3,
 		votingTime: 300,
-		photoTime: 300,
+		photoTime: 300
 	};
+	$: lobbyID = $gameStore.room?.roomId;
 </script>
 
 <main class="flex min-h-screen items-center justify-center">
