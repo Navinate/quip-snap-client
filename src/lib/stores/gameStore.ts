@@ -35,9 +35,6 @@ function createGameStore() {
 
 		// Listen to any state changes
 		$(room.state).onChange(() => {
-			console.log('State Changed');
-			console.log("hostID:",room.state.hostID)
-			console.log("your ID:", room.sessionId)
 			update((state) => ({
 				...state,
 				currentRound: room.state.roundIndex,
@@ -47,8 +44,7 @@ function createGameStore() {
 		});
 
 		// Listen to messages
-		room.onMessage('round_start', (data) => {
-			console.log('Round started at:', data.timestamp);
+		room.onMessage('round_start', () => {
 			goto('/game/take-picture');
 		});
 		// TODO: add voting time, round over onMessage listeners

@@ -34,7 +34,6 @@
                         (resultObj, error) => {
                             if (resultObj) {
                                 const result = resultObj.getText();
-                                console.log('QR Code Result:', result);
                                 onscan?.(result);
                                 controls.stop();
                             }
