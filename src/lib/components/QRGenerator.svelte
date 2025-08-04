@@ -3,7 +3,7 @@
     import QRCode from 'qrcode';
 
     interface Props {
-        text: string;
+        text?: string;
         size?: number;
         errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
     }
