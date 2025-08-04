@@ -82,12 +82,12 @@ function createGameStore() {
 					const room = await client.reconnect(reconnectionToken);
 
 					setupRoomListeners(room);
-					if (room.state.hostID === room.roomId) {
-						set({ room, connected: true, isHost: true, error: null });
-					} else {
-						set({ room, connected: true, isHost: false, error: null });
-					}
-
+					set({
+						room,
+						connected: true,
+						isHost: sessionStorage.getItem('isHost') === 'true',
+						error: null
+					});
 					console.log('successfully reconnected!');
 				} catch (error) {
 					set({ room: null, connected: false, isHost: false, error: (error as Error).message });
@@ -100,6 +100,7 @@ function createGameStore() {
 			try {
 				const room = await client.create('game_room', { name: name });
 				sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
+				sessionStorage.setItem('isHost', 'true');
 				setupRoomListeners(room);
 				set({ room, connected: true, isHost: true, error: null });
 				return room;
@@ -114,6 +115,7 @@ function createGameStore() {
 				// This only joins existing rooms, doesn't create new ones
 				const room = await client.joinById(roomID, { name: name });
 				sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
+				sessionStorage.setItem('isHost', 'false');
 				setupRoomListeners(room);
 				set({ room, connected: true, isHost: false, error: null });
 				return room;
