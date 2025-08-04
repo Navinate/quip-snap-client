@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import * as Card from '$lib/components/ui/card/index.js';
 	import { gameStore } from '$lib/stores/gameStore';
 	import { compressImage } from '$lib/helpers/image';
 
@@ -68,17 +69,24 @@
 </script>
 
 <main class="flex min-h-screen flex-col items-center justify-center">
-	{#if !photoTaken}
-		<!-- svelte-ignore a11y_media_has_caption -->
-		<video bind:this={videoElement} autoplay playsinline></video>
-		<Button onclick={takePhoto}>Take Photo</Button>
-	{:else}
-		{#if capturedImage}
-			<!-- svelte-ignore a11y_img_redundant_alt -->
-			<img src={capturedImage} alt="Captured photo" />
-		{/if}
-		<Button onclick={retakePhoto}>Retake Photo</Button>
-		<Button onclick={submitPhoto}>Submit Photo</Button>
-	{/if}
-	<canvas bind:this={canvasElement} style="display: none;"></canvas>
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>{$gameStore.currentPrompt}</Card.Title>
+		</Card.Header>
+		<Card.Content class="flex flex-col gap-1">
+			<canvas bind:this={canvasElement} style="display: none;"></canvas>
+			{#if !photoTaken}
+				<!-- svelte-ignore a11y_media_has_caption -->
+				<video bind:this={videoElement} autoplay playsinline class="rounded-md"></video>
+				<Button onclick={takePhoto}>Take Photo</Button>
+			{:else}
+				{#if capturedImage}
+					<!-- svelte-ignore a11y_img_redundant_alt -->
+					<img src={capturedImage} alt="Captured photo" class="rounded-md"/>
+				{/if}
+				<Button onclick={retakePhoto}>Retake Photo</Button>
+				<Button onclick={submitPhoto}>Submit Photo</Button>
+			{/if}
+		</Card.Content>
+	</Card.Root>
 </main>

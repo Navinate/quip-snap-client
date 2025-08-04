@@ -6,7 +6,6 @@
 	import { get } from 'svelte/store';
 	import QRGenerator from '$lib/components/QRGenerator.svelte';
 	import { onMount } from 'svelte';
-	const currentState = get(gameStore);
 
 	let gameSettings: GameSettings = {
 		numRounds: 3,
@@ -23,7 +22,7 @@
 			<Card.Description>Join code: {lobbyID}</Card.Description>
 		</Card.Header>
 		<Card.Content class="flex flex-col gap-1">
-			{#if currentState.isHost}
+			{#if $gameStore.isHost}
 				<Button onclick={() => gameStore.startGame(gameSettings)}>Start Game</Button>
 			{/if}
 			<QRGenerator text={lobbyID} size={250} />
