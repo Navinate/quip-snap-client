@@ -40,7 +40,7 @@ export default defineConfig({
 			}
 		]
 	},
-	ssr: {
-		external: ['@zxing/browser']
-	}
+	// ssr: {
+	// 	external: ['@zxing/browser']
+	// }
 });
