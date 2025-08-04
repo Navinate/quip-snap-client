@@ -1,0 +1,10 @@
+export const placeHolderNames = [
+   "Emma", "Liam", "Sophia", "Oliver",
+   "Sofia", "Diego", "Valentina", "Santiago",
+   "Yuki", "Min-jun", "Sakura", "Hiroshi",
+   "Aisha", "Omar", "Zara", "Hassan",
+   "Amara", "Kwame", "Zuri", "Kofi",
+   "Priya", "Arjun", "Kavya", "Vikram",
+   "Astrid", "Erik", "Freya", "Lars",
+   "Anastasia", "Dmitri", "Katarina", "Pavel"
+ ];
