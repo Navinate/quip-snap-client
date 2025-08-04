@@ -35,6 +35,7 @@ function createGameStore() {
 
 		// Listen to any state changes
 		$(room.state).onChange(() => {
+			console.log('State Changed');
 			update((state) => ({
 				...state,
 				currentRound: room.state.roundIndex,
@@ -46,52 +47,59 @@ function createGameStore() {
 		// Listen to messages
 		room.onMessage('round_start', (data) => {
 			console.log('Round started at:', data.timestamp);
-			// Handle round timing logic
+			goto('/game/take-picture');
 		});
 		// TODO: add voting time, round over onMessage listeners
 
 		room.onMessage('game_complete', () => {
 			console.log('Game completed!');
 		});
+
+		// room.onMessage('new_host', () => {
+
+		// })
 	}
 
 	return {
 		subscribe,
-		async connect(roomName: string) {
-			try {
-				const room = await client.joinOrCreate(roomName);
-				setupRoomListeners(room);
-				set({ room, connected: true, isHost: false, error: null });
-				return room;
-			} catch (error) {
-				set({ room: null, connected: false, isHost: false, error: (error as Error).message });
-				throw error;
+		// async connect(roomName: string) {
+		// 	try {
+		// 		const room = await client.joinOrCreate(roomName);
+		//      sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
+		// 		setupRoomListeners(room);
+		// 		set({ room, connected: true, isHost: false, error: null });
+		// 		return room;
+		// 	} catch (error) {
+		// 		set({ room: null, connected: false, isHost: false, error: (error as Error).message });
+		// 		throw error;
+		// 	}
+		// },
+		async reconnect() {
+			const reconnectionToken = sessionStorage.getItem('reconnectionToken');
+			if (reconnectionToken) {
+				console.log('attempting to reconnect because token exists', reconnectionToken);
+				try {
+					const room = await client.reconnect(reconnectionToken);
+
+					setupRoomListeners(room);
+					if (room.state.hostID === room.roomId) {
+						set({ room, connected: true, isHost: true, error: null });
+					} else {
+						set({ room, connected: true, isHost: false, error: null });
+					}
+
+					console.log('successfully reconnected!');
+				} catch (error) {
+					set({ room: null, connected: false, isHost: false, error: (error as Error).message });
+					console.log('Room does not exist anymore');
+					this.leaveGame();
+				}
 			}
 		},
-		disconnect() {
-			update((state) => {
-				state.room?.leave();
-				return { room: null, connected: false, isHost: false, error: null };
-			});
-		},
-		leaveGame() {
-			gameStore.disconnect();
-			goto('/');
-		},
-		startGame(gameSettings: GameSettings) {
-			//put code to check if user is host
-			this.sendMessage("game_start", gameSettings)
-		},
-		sendMessage(type: string, data?: unknown) {
-			update((state) => {
-				state.room?.send(type, data);
-				return state;
-			});
-		},
-		// Add these methods to your gameStore
 		async createRoom(name: string) {
 			try {
 				const room = await client.create('game_room', { name: name });
+				sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
 				setupRoomListeners(room);
 				set({ room, connected: true, isHost: true, error: null });
 				return room;
@@ -101,11 +109,11 @@ function createGameStore() {
 				throw error;
 			}
 		},
-
 		async joinByCode(roomID: string, name: string) {
 			try {
 				// This only joins existing rooms, doesn't create new ones
 				const room = await client.joinById(roomID, { name: name });
+				sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
 				setupRoomListeners(room);
 				set({ room, connected: true, isHost: false, error: null });
 				return room;
@@ -113,6 +121,27 @@ function createGameStore() {
 				set({ room: null, connected: false, isHost: false, error: (error as Error).message });
 				throw error;
 			}
+		},
+		_disconnect() {
+			update((state) => {
+				state.room?.leave();
+				return { room: null, connected: false, isHost: false, error: null };
+			});
+		},
+		leaveGame() {
+			gameStore._disconnect();
+			sessionStorage.removeItem('reconnectionToken');
+			goto('/');
+		},
+		startGame(gameSettings: GameSettings) {
+			//put code to check if user is host
+			this.sendMessage('game_start', gameSettings);
+		},
+		sendMessage(type: string, data?: unknown) {
+			update((state) => {
+				state.room?.send(type, data);
+				return state;
+			});
 		}
 	};
 }
