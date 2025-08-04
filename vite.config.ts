@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
-import Terminal from 'vite-plugin-terminal';
+
 
 export default defineConfig({
 	plugins: [
@@ -11,9 +11,6 @@ export default defineConfig({
 		sveltekit(),
 		devtoolsJson(),
 		mkcert(),
-		Terminal({
-			output: ['console', 'terminal']
-		}),
 	],
 	test: {
 		projects: [
@@ -42,5 +39,5 @@ export default defineConfig({
 				}
 			}
 		]
-	}
+	},
 });
