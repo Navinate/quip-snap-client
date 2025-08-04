@@ -2,35 +2,36 @@
     import { onMount } from 'svelte';
     import { BrowserQRCodeReader } from '@zxing/browser';
     import type { IScannerControls } from '@zxing/browser';
-
+    
     interface Props {
         onscan?: (result: string) => void;
     }
-
+    
     let { onscan }: Props = $props();
-
     let videoElement = $state<HTMLVideoElement>();
     let qrCodeReader: BrowserQRCodeReader;
     let controls: IScannerControls;
-
+    
     onMount(() => {
         qrCodeReader = new BrowserQRCodeReader();
-        
+       
         (async () => {
             try {
-                // Request camera permission and immediately stop the stream
-                const permissionStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                permissionStream.getTracks().forEach(track => track.stop());
-                
                 const devices = await BrowserQRCodeReader.listVideoInputDevices();
-                const selectedDeviceId = devices[0]?.deviceId;
                 
+                // Find back camera - look for 'environment' or 'back' in label
+                const backCamera = devices.find(device => 
+                    device.label.toLowerCase().includes('back') || 
+                    device.label.toLowerCase().includes('environment')
+                ) || devices[devices.length - 1]; // Fallback to last device (often back camera)
+                
+                const selectedDeviceId = backCamera?.deviceId || devices[0]?.deviceId;
+               
                 if (selectedDeviceId) {
-                    qrCodeReader.decodeFromVideoDevice(
+                    controls = await qrCodeReader.decodeFromVideoDevice(
                         selectedDeviceId,
                         videoElement!,
-                        (resultObj, error, ctrl) => {
-                            controls = ctrl;
+                        (resultObj, error) => {
                             if (resultObj) {
                                 const result = resultObj.getText();
                                 console.log('QR Code Result:', result);
@@ -46,7 +47,7 @@
                 console.error('Error accessing camera:', err);
             }
         })();
-
+        
         return () => {
             controls?.stop();
         };
