@@ -28,7 +28,7 @@
 
 				//console.log(`Room created with join code: ${room.roomID}`);
 				console.log(room);
-				goto(`/lobby`);
+				goto(`/game/lobby`);
 			} catch (err) {
 				console.error(err);
 			} finally {
@@ -44,7 +44,7 @@
 			isConnecting = true;
 			try {
 				await gameStore.joinByCode(joinCode.trim(), name.trim());
-				goto(`/lobby`);
+				goto(`/game/lobby`);
 			} catch (err) {
 				console.error(err);
 				alert("cannot find room, please try another code")
