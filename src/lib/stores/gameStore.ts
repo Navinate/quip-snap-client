@@ -18,12 +18,6 @@ export interface GameSettings {
 	numRounds: number;
 }
 
-// interface ServerGameState {
-// 	roundNumber: number;
-// 	currentPrompt: string;
-// 	hostID: string;
-// }
-
 function createGameStore() {
 	const { subscribe, set, update } = writable<ClientGameState>({
 		room: null,
