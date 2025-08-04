@@ -19,15 +19,13 @@
 	let isConnecting: boolean;
 	let joinCode: string = '';
 	let name: string = '';
+	let isScannerOpen: boolean = false;
 
 	async function hostRoom() {
 		if (name) {
 			isConnecting = true;
 			try {
 				const room = await gameStore.createRoom(name);
-
-				//console.log(`Room created with join code: ${room.roomID}`);
-				console.log(room);
 				goto(`/game/lobby`);
 			} catch (err) {
 				console.error(err);
@@ -35,7 +33,7 @@
 				isConnecting = false;
 			}
 		} else {
-			alert("Please enter a name")
+			alert('Please enter a name');
 		}
 	}
 
@@ -47,22 +45,19 @@
 				goto(`/game/lobby`);
 			} catch (err) {
 				console.error(err);
-				alert("cannot find room, please try another code")
+				alert('cannot find room, please try another code');
 			} finally {
 				isConnecting = false;
 			}
 		} else {
 			if (!joinCode) alert('no code entered');
-			else if(!name) alert('please enter a name');
-			else alert("bad code");
+			else if (!name) alert('please enter a name');
+			else alert('bad code');
 		}
 	}
 
 	onMount(() => {
 		randomName = placeHolderNames[Math.floor(Math.random() * placeHolderNames.length)];
-		if (currentState.room !== null) {
-			gameStore.disconnect();
-		}
 	});
 </script>
 
@@ -70,7 +65,7 @@
 	<Card.Root>
 		<Card.Header class="flex justify-between">
 			<Card.Title>Trey's Scavenge Game</Card.Title>
-			<Dialog.Root>
+			<Dialog.Root bind:open={isScannerOpen}>
 				<Dialog.Trigger class={buttonVariants({ variant: 'outline' })}>
 					<ScanQRCode />
 				</Dialog.Trigger>
@@ -78,7 +73,10 @@
 					<QRScanner
 						onscan={(result) => {
 							joinCode = result;
-							joinRoom();
+							isScannerOpen = false;
+							if (name) {
+								joinRoom();
+							}
 						}}
 					/>
 				</Dialog.Content>
