@@ -8,8 +8,8 @@
 import { Schema, type} from '@colyseus/schema';
 
 
-export class Player extends Schema {
-    @type("boolean") public connected!: boolean;
-    @type("string") public name!: string;
-    @type("number") public score!: number;
+export class GameSettings extends Schema {
+    @type("number") public photoTime!: number;
+    @type("number") public voteTime!: number;
+    @type("number") public numRounds!: number;
 }

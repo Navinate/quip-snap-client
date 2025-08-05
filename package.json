@@ -63,6 +63,7 @@
 		]
 	},
 	"dependencies": {
+		"@colyseus/schema": "^3.0.49",
 		"@sveltejs/adapter-auto": "^6.0.1",
 		"@sveltejs/adapter-node": "^5.2.13",
 		"@types/qrcode": "^1.5.5",

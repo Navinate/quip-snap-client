@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import '../app.css';
+	import { onMount } from 'svelte';
 	import { gameStore } from '$lib/stores/gameStore';
 	let { children } = $props();
-	
-	onMount(() => {
-		gameStore.reconnect();
-	})
+
+	onMount(async () => {
+		await gameStore.reconnect();
+	});
 </script>
 
 {@render children()}

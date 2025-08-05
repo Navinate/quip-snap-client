@@ -5,8 +5,6 @@
 	import { gameStore } from '$lib/stores/gameStore';
 	import { compressImage } from '$lib/helpers/image';
 
-	$: connected = $gameStore.connected;
-
 	let videoElement: HTMLVideoElement | null = null;
 	let canvasElement: HTMLCanvasElement | null = null;
 	let photoTaken = false;
@@ -71,7 +69,7 @@
 <main class="flex min-h-screen flex-col items-center justify-center">
 	<Card.Root>
 		<Card.Header>
-			<Card.Title>{$gameStore.currentPrompt}</Card.Title>
+			<Card.Title>{$gameStore.rounds[$gameStore.roundIndex].prompt}</Card.Title>
 		</Card.Header>
 		<Card.Content class="flex flex-col gap-1">
 			<canvas bind:this={canvasElement} style="display: none;"></canvas>

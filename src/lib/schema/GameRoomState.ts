@@ -5,7 +5,7 @@
 // GENERATED USING @colyseus/schema 3.0.48
 // 
 
-import { Schema, type, ArraySchema, MapSchema, SetSchema, DataChange } from '@colyseus/schema';
+import { Schema, type, ArraySchema, MapSchema} from '@colyseus/schema';
 import { Player } from './Player'
 import { Round } from './Round'
 

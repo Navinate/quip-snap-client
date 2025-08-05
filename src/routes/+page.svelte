@@ -10,22 +10,21 @@
 	import ScanQRCode from '@lucide/svelte/icons/scan-qr-code';
 	import QRScanner from '$lib/components/QRScanner.svelte';
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
 	import { placeHolderNames } from '$lib/helpers/constants';
 
-	const currentState = get(gameStore);
+	//TODO: SWITCH EVERYTHING BACK TO inputtedName
 
 	let randomName: string = '';
 	let isConnecting: boolean;
 	let joinCode: string = '';
-	let name: string = '';
+	let inputtedName: string = '';
 	let isScannerOpen: boolean = false;
 
 	async function hostRoom() {
-		if (name) {
+		if (randomName) {
 			isConnecting = true;
 			try {
-				const room = await gameStore.createRoom(name);
+				await gameStore.createRoom(randomName);
 				goto(`/game/lobby`);
 			} catch (err) {
 				console.error(err);
@@ -38,10 +37,10 @@
 	}
 
 	async function joinRoom() {
-		if (joinCode && /^\d{6}$/.test(joinCode) && name) {
+		if (joinCode && /^\d{6}$/.test(joinCode) && randomName) {
 			isConnecting = true;
 			try {
-				await gameStore.joinByCode(joinCode.trim(), name.trim());
+				await gameStore.joinByCode(joinCode.trim(), randomName.trim());
 				goto(`/game/lobby`);
 			} catch (err) {
 				console.error(err);
@@ -51,7 +50,7 @@
 			}
 		} else {
 			if (!joinCode) alert('no code entered');
-			else if (!name) alert('please enter a name');
+			else if (!randomName) alert('please enter a name');
 			else alert('bad code');
 		}
 	}
@@ -74,7 +73,8 @@
 						onscan={(result) => {
 							joinCode = result;
 							isScannerOpen = false;
-							if (name) {
+							//TODO: SWITCH BACK TO if (name)
+							if (randomName) {
 								joinRoom();
 							}
 						}}
@@ -85,7 +85,8 @@
 		<Card.Content class="flex flex-col gap-4">
 			<div class="flex w-full max-w-sm flex-col gap-1.5">
 				<Label for="nameInput">Name</Label>
-				<Input id="nameInput" type="name" bind:value={name} placeholder={randomName} />
+				<!-- TODO: SWITCH BACK TO bind:value={name} -->
+				<Input id="nameInput" type="name" bind:value={randomName} placeholder={randomName} />
 			</div>
 			<div class="flex w-full max-w-sm flex-col gap-1.5">
 				<Label for="joinCodeInput">Join Code</Label>
