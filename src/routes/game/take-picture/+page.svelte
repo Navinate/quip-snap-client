@@ -33,7 +33,7 @@
 		const context = canvasElement.getContext('2d');
 		if (!context) return;
 		context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-		capturedImage = canvasElement.toDataURL('image/jpeg');
+		capturedImage = canvasElement.toDataURL('image/webp');
 		photoTaken = true;
 		stopCamera();
 	}
