@@ -10,44 +10,65 @@ interface ClientGameState {
 	error: string | null;
 	currentRound?: number;
 	currentPrompt?: string;
+	votingPhotos: VotingPhoto[];
 }
 
-export interface GameSettings {
+interface GameSettings {
 	photoTime: number;
 	votingTime: number;
 	numRounds: number;
 }
+export interface VotingPhoto {
+	name:string;
+	image: Uint8Array;
+}
 
 function createGameStore() {
-	const { subscribe, set, update } = writable<ClientGameState>({
+	const { subscribe, /*set,*/ update } = writable<ClientGameState>({
 		room: null,
 		connected: false,
 		isHost: false,
 		error: null,
 		currentRound: 0,
-		currentPrompt: ''
+		currentPrompt: '',
+		votingPhotos: []
 	});
 
 	const client = new Client('https://192.168.50.133:2567');
 
+	// Helper functions for updating specific fields
+	const updateField = <K extends keyof ClientGameState>(key: K, value: ClientGameState[K]) => {
+		update((state) => ({ ...state, [key]: value }));
+	};
+	const updateFields = (fields: Partial<ClientGameState>) => {
+		update((state) => ({ ...state, ...fields }));
+	};
+
 	function setupRoomListeners(room: Room) {
 		const $ = getStateCallbacks(room);
 
-		// Listen to any state changes
 		$(room.state).onChange(() => {
-			update((state) => ({
-				...state,
+			updateFields({
 				currentRound: room.state.roundIndex,
 				currentPrompt: room.state.currentPrompt,
 				isHost: room.sessionId === room.state.hostID
-			}));
+			});
 		});
 
-		// Listen to messages
 		room.onMessage('round_start', () => {
 			goto('/game/take-picture');
 		});
-		// TODO: add voting time, round over onMessage listeners
+
+		room.onMessage('not_enough_players', () => {
+			console.error("not enough players :(");
+		})
+
+		room.onMessage('voting_start', (data) => {
+			const filteredPhotos = data.photos.filter((photo: VotingPhoto) => photo.name !== room.sessionId);
+			updateField('votingPhotos', filteredPhotos);
+			goto('/game/voting');
+			console.log(get(gameStore).votingPhotos);
+		});
 
 		room.onMessage('game_complete', () => {
 			console.log('Game completed!');
@@ -56,18 +77,6 @@ function createGameStore() {
 
 	return {
 		subscribe,
-		// async connect(roomName: string) {
-		// 	try {
-		// 		const room = await client.joinOrCreate(roomName);
-		//      sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
-		// 		setupRoomListeners(room);
-		// 		set({ room, connected: true, isHost: false, error: null });
-		// 		return room;
-		// 	} catch (error) {
-		// 		set({ room: null, connected: false, isHost: false, error: (error as Error).message });
-		// 		throw error;
-		// 	}
-		// },
 		async reconnect() {
 			const reconnectionToken = sessionStorage.getItem('reconnectionToken');
 			if (reconnectionToken) {
@@ -75,7 +84,7 @@ function createGameStore() {
 				try {
 					const room: Room = await client.reconnect(reconnectionToken);
 					setupRoomListeners(room);
-					set({
+					updateFields({
 						room,
 						connected: true,
 						isHost: room.sessionId === room.state.hostID,
@@ -83,7 +92,12 @@ function createGameStore() {
 					});
 					console.log('successfully reconnected!', get(gameStore).isHost);
 				} catch (error) {
-					set({ room: null, connected: false, isHost: false, error: (error as Error).message });
+					updateFields({
+						room: null,
+						connected: false,
+						isHost: false,
+						error: (error as Error).message
+					});
 					console.log('Room does not exist anymore');
 					this.leaveGame();
 				}
@@ -94,31 +108,39 @@ function createGameStore() {
 				const room = await client.create('game_room', { name: name });
 				sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
 				setupRoomListeners(room);
-				set({ room, connected: true, isHost: true, error: null });
+				updateFields({ room, connected: true, isHost: true, error: null });
 				return room;
 			} catch (error) {
-				set({ room: null, connected: false, isHost: true, error: (error as Error).message });
-
+				updateFields({
+					room: null,
+					connected: false,
+					isHost: true,
+					error: (error as Error).message
+				});
 				throw error;
 			}
 		},
 		async joinByCode(roomID: string, name: string) {
 			try {
-				// This only joins existing rooms, doesn't create new ones
 				const room = await client.joinById(roomID, { name: name });
 				sessionStorage.setItem('reconnectionToken', room.reconnectionToken);
 				setupRoomListeners(room);
-				set({ room, connected: true, isHost: false, error: null });
+				updateFields({ room, connected: true, isHost: false, error: null });
 				return room;
 			} catch (error) {
-				set({ room: null, connected: false, isHost: false, error: (error as Error).message });
+				updateFields({
+					room: null,
+					connected: false,
+					isHost: false,
+					error: (error as Error).message
+				});
 				throw error;
 			}
 		},
 		_disconnect() {
 			update((state) => {
 				state.room?.leave();
-				return { room: null, connected: false, isHost: false, error: null };
+				return { room: null, connected: false, isHost: false, error: null, votingPhotos: [] };
 			});
 		},
 		leaveGame() {
@@ -127,7 +149,6 @@ function createGameStore() {
 			goto('/');
 		},
 		startGame(gameSettings: GameSettings) {
-			//put code to check if user is host
 			this.sendMessage('game_start', gameSettings);
 		},
 		sendMessage(type: string, data?: unknown) {
@@ -135,7 +156,9 @@ function createGameStore() {
 				state.room?.send(type, data);
 				return state;
 			});
-		}
+		},
+		//TODO Add a function to check game status and sync up if desynced.
+		// Could also do this by checking state object idk read colyseus docs idiot
 	};
 }
 
