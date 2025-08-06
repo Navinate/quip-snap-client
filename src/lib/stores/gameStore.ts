@@ -4,7 +4,7 @@ import { goto } from '$app/navigation';
 import { GameRoomState } from '$lib/schema/GameRoomState';
 import { GameSettings } from '$lib/schema/GameSettings';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const navDelay = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
 function createGameStore() {
 	const { subscribe, set } = writable<GameRoomState>(new GameRoomState());
@@ -15,7 +15,8 @@ function createGameStore() {
 		room.onStateChange((state: GameRoomState) => {
 			set(state);
 		});
-		room.onMessage('round_start', () => {
+		room.onMessage('round_start', async() => {
+			await navDelay();
 			goto('/game/take-picture');
 		});
 
@@ -24,14 +25,14 @@ function createGameStore() {
 		});
 
 		room.onMessage('voting_start', async () => {
-			await delay(1000);
+			await navDelay();
 			goto('/game/voting');
 		});
 
 		room.onMessage('round_results', async () => {
-			await delay(1000);
+			await navDelay();
 			goto('/game/round-results');
-		})
+		});
 
 		room.onMessage('game_complete', () => {
 			console.log('Game completed!');
@@ -88,22 +89,20 @@ function createGameStore() {
 			goto('/');
 		},
 		startGame(gameSettings: GameSettings) {
-			this.sendMessage('game_start', gameSettings);
+			if (!currentRoom) throw new Error('Room not available');
+			currentRoom.send('game_start', gameSettings);
 		},
 		nextRound() {
-			this.sendMessage('next_round');
+			if (!currentRoom) throw new Error('Room not available');
+			currentRoom.send('next_round');
 		},
-		sendMessage(type: string, data?: unknown) {
-			if (!currentRoom) {
-				throw new Error('Room not available');
-			}
-			currentRoom.send(type, data);
+		sendPhoto(processedImage: string) {
+			if (!currentRoom) throw new Error('Room not available');
+			currentRoom.send('photo', processedImage);
 		},
 		submitVote(selectedPhotoName: string) {
-			if (!currentRoom) {
-				throw new Error('Room not available');
-			}
-			console.log("I voted for: ",selectedPhotoName);
+			if (!currentRoom) throw new Error('Room not available');
+			console.log('I voted for: ', selectedPhotoName);
 			currentRoom.send('vote_submit', {
 				name: selectedPhotoName,
 				voter: currentRoom.sessionId
