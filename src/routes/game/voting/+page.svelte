@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CountDownTimer from '$lib/components/CountDownTimer.svelte';
     import Button from '$lib/components/ui/button/button.svelte';
     import { gameStore } from '$lib/stores/gameStore';
 
@@ -16,6 +17,8 @@
 </script>
 
 <main class="mx-4 flex min-h-screen flex-col justify-center gap-4">
+    <CountDownTimer initTime={$gameStore.settings.voteTime} onComplete={submitVote}
+				></CountDownTimer>
     <div
         class="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-2 sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] sm:gap-4"
     >

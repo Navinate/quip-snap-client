@@ -3,11 +3,12 @@
   import { Progress } from "$lib/components/ui/progress";
   
   interface Props {
-    photoTime: number; // in seconds
+    initTime: number; // in seconds
     onComplete?: () => void;
+    text?: false
   }
   
-  let { photoTime, onComplete }: Props = $props();
+  let { initTime, onComplete, text }: Props = $props();
   
   let progress = $state(100);
   let timeLeft = $state(0);
@@ -15,7 +16,7 @@
   let interval: NodeJS.Timeout;
   
   onMount(() => {
-    totalTime = photoTime * 1000; // Convert to milliseconds
+    totalTime = initTime * 1000; // Convert to milliseconds
     timeLeft = totalTime;
     
     interval = setInterval(() => {
@@ -36,9 +37,11 @@
 </script>
 
 <div class="w-full space-y-2">
+  {#if text}
   <div class="flex justify-between text-sm text-muted-foreground">
     <span>Time Remaining</span>
     <span>{Math.ceil(timeLeft / 1000)}s</span>
   </div>
+  {/if}
   <Progress value={progress} class="h-3" />
 </div>

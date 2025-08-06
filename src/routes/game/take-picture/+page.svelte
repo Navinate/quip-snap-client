@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { gameStore } from '$lib/stores/gameStore';
 	import { compressImage } from '$lib/helpers/image';
+	import CountDownTimer from '$lib/components/CountDownTimer.svelte';
+	import AspectRatio from '$lib/components/ui/aspect-ratio/aspect-ratio.svelte';
 
 	let videoElement: HTMLVideoElement | null = null;
 	let canvasElement: HTMLCanvasElement | null = null;
@@ -66,10 +68,18 @@
 	});
 </script>
 
-<main class="flex min-h-screen flex-col items-center justify-center">
+<main class="mx-2 flex min-h-screen flex-col justify-center gap-4">
+	<div></div>
+
 	<Card.Root>
 		<Card.Header>
-			<Card.Title>{$gameStore.rounds[$gameStore.roundIndex].prompt}</Card.Title>
+			<Card.Title class="scroll-m-20 text-2xl font-semibold tracking-tight"
+				>{$gameStore.rounds[$gameStore.roundIndex].prompt}</Card.Title
+			>
+			<Card.Description
+				><CountDownTimer initTime={$gameStore.settings.photoTime} onComplete={submitPhoto}
+				></CountDownTimer></Card.Description
+			>
 		</Card.Header>
 		<Card.Content class="flex flex-col gap-1">
 			<canvas bind:this={canvasElement} style="display: none;"></canvas>
@@ -80,9 +90,11 @@
 			{:else}
 				{#if capturedImage}
 					<!-- svelte-ignore a11y_img_redundant_alt -->
-					<img src={capturedImage} alt="Captured photo" class="rounded-md"/>
+					<img src={capturedImage} alt="Captured photo" class="rounded-md" />
 				{/if}
-				<Button onclick={retakePhoto}>Retake Photo</Button>
+				<Button onclick={retakePhoto} class={buttonVariants({ variant: 'destructive' })}
+					>Retake Photo</Button
+				>
 				<Button onclick={submitPhoto}>Submit Photo</Button>
 			{/if}
 		</Card.Content>

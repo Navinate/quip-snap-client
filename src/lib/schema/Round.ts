@@ -10,8 +10,6 @@ import { Photo } from './Photo'
 
 export class Round extends Schema {
     @type("string") public prompt!: string;
-    @type("number") public photoTimeLeft!: number;
-    @type("number") public voteTimeLeft!: number;
     @type("number") public totalVotes: number = 0;
     @type([ Photo ]) public photos = new ArraySchema<Photo>();
 }
