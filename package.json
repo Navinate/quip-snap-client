@@ -67,8 +67,8 @@
 		"@sveltejs/adapter-auto": "^6.0.1",
 		"@sveltejs/adapter-node": "^5.2.13",
 		"@types/qrcode": "^1.5.5",
-		"@zxing/browser": "^0.1.5",
 		"colyseus.js": "^0.16.19",
+		"qr-scanner": "^1.4.2",
 		"qrcode": "^1.5.4"
 	}
 }
