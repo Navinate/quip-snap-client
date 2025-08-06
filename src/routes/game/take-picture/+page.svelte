@@ -9,6 +9,7 @@
 	let videoElement: HTMLVideoElement | null = null;
 	let canvasElement: HTMLCanvasElement | null = null;
 	let photoTaken = false;
+	let hasPhotoBeenSubmitted = false
 	let stream: MediaStream | null = null;
 
 	let capturedImage: string | null = null;
@@ -53,6 +54,7 @@
 		const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
 		console.log(`Sending to server: ${sizeInBytes} bytes (${sizeInKB} KB, ${sizeInMB} MB)`);
 		gameStore.sendPhoto(processedImage);
+		hasPhotoBeenSubmitted = true;
 	}
 
 	function stopCamera() {
@@ -72,9 +74,10 @@
 
 	<Card.Root>
 		<Card.Header>
-			<Card.Title class="scroll-m-20 text-2xl font-semibold tracking-tight"
-				>{$gameStore.rounds[$gameStore.roundIndex].prompt}</Card.Title
-			>
+			<Card.Title class="scroll-m-20 text-2xl font-semibold tracking-tight">
+				<div>Take a picture of:</div>
+				<div>{$gameStore.rounds[$gameStore.roundIndex].prompt}</div>
+				</Card.Title>
 			<Card.Description
 				><CountDownTimer initTime={$gameStore.settings.photoTime} onComplete={submitPhoto}
 				></CountDownTimer></Card.Description
@@ -91,10 +94,14 @@
 					<!-- svelte-ignore a11y_img_redundant_alt -->
 					<img src={capturedImage} alt="Captured photo" class="rounded-md" />
 				{/if}
+				{#if !hasPhotoBeenSubmitted}
 				<Button onclick={retakePhoto} class={buttonVariants({ variant: 'destructive' })}
 					>Retake Photo</Button
 				>
-				<Button onclick={submitPhoto}>Submit Photo</Button>
+				{/if}
+				<Button disabled={hasPhotoBeenSubmitted} onclick={submitPhoto}>
+					{hasPhotoBeenSubmitted ? 'Submitted!' : 'Submit Photo'}
+				</Button>
 			{/if}
 		</Card.Content>
 	</Card.Root>

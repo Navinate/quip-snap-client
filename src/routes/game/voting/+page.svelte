@@ -34,7 +34,9 @@
 		<h1 class="mb-1 text-xl font-bold sm:text-2xl">📸 Vote for Your Favorite</h1>
 		<p class="text-sm text-muted-foreground">Choose the photo that best captures the prompt</p>
 	</div>
-
+	<div>
+		<p class="text-sm text-muted-foreground">{$gameStore.rounds[$gameStore.roundIndex].prompt}</p>
+	</div>
 	<div class="flex justify-center">
 		<CountDownTimer initTime={$gameStore.settings.voteTime} onComplete={submitVote} />
 	</div>
