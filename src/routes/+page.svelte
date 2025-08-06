@@ -13,7 +13,6 @@
 	import { placeHolderNames } from '$lib/helpers/constants';
 
 	let randomName: string = '';
-	let isConnecting: boolean;
 	let joinCode: string = '';
 	let inputtedName: string = '';
 	let isScannerOpen: boolean = false;

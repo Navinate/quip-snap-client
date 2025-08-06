@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
-import { Client, Room } from 'colyseus.js';
+import { Client } from 'colyseus.js';
+import type { Room } from 'colyseus.js';
 import { goto } from '$app/navigation';
 import { GameRoomState } from '$lib/schema/GameRoomState';
 import { GameSettings } from '$lib/schema/GameSettings';
@@ -15,7 +16,7 @@ function createGameStore() {
 		room.onStateChange((state: GameRoomState) => {
 			set(state);
 		});
-		room.onMessage('round_start', async() => {
+		room.onMessage('round_start', async () => {
 			await navDelay();
 			goto('/game/take-picture');
 		});

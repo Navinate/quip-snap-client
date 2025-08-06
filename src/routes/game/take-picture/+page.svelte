@@ -5,7 +5,6 @@
 	import { gameStore } from '$lib/stores/gameStore';
 	import { compressImage } from '$lib/helpers/image';
 	import CountDownTimer from '$lib/components/CountDownTimer.svelte';
-	import AspectRatio from '$lib/components/ui/aspect-ratio/aspect-ratio.svelte';
 
 	let videoElement: HTMLVideoElement | null = null;
 	let canvasElement: HTMLCanvasElement | null = null;
@@ -45,7 +44,7 @@
 	}
 
 	async function submitPhoto() {
-		if (!capturedImage || !gameStore) return;
+		if (!capturedImage) return;
 		const processedImage = await compressImage(capturedImage, 0.5, 600);
 
 		// This is exactly what gets sent to the server
