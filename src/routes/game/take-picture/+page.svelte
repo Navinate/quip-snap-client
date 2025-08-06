@@ -53,7 +53,7 @@
 		const sizeInKB = (sizeInBytes / 1024).toFixed(2);
 		const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
 		console.log(`Sending to server: ${sizeInBytes} bytes (${sizeInKB} KB, ${sizeInMB} MB)`);
-		gameStore.sendMessage('photo', processedImage);
+		gameStore.sendPhoto(processedImage);
 	}
 
 	function stopCamera() {
