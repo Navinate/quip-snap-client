@@ -4,6 +4,9 @@
 	import { gameStore } from '$lib/stores/gameStore';
 	import type { Room } from 'colyseus.js';
 	import { onMount } from 'svelte';
+	import { dev } from '$app/environment';
+
+	const apiUrl = dev ? 'http://localhost:2567' : 'https://scavenge.navinate.com';
 	const currentRound = $derived($gameStore.rounds[$gameStore.roundIndex]);
 	const votingPhotos = $derived(currentRound?.photos);
 	let selectedPhotoIndex = $state<number | null>(null);
@@ -50,7 +53,7 @@
 					>
 						<div class="relative aspect-square overflow-hidden">
 							<img
-								src={photo.filePath}
+								src={`${apiUrl}${photo.filePath}`}
 								alt="Player submission"
 								class="h-full w-full rounded-lg object-cover"
 							/>

@@ -8,8 +8,8 @@ import { dev } from '$app/environment';
 
 
 const apiUrl = dev 
-  ? 'https://localhost:2567/' 
-  : 'https://scavenge.navinate.com';
+  ? 'ws://localhost:2567/' 
+  : 'wss://scavenge.navinate.com';
 
 const navDelay = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
