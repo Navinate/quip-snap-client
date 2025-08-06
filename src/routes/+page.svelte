@@ -12,8 +12,6 @@
 	import { onMount } from 'svelte';
 	import { placeHolderNames } from '$lib/helpers/constants';
 
-	//TODO: SWITCH EVERYTHING BACK TO inputtedName
-
 	let randomName: string = '';
 	let isConnecting: boolean;
 	let joinCode: string = '';
@@ -37,21 +35,27 @@
 	}
 
 	async function joinRoom() {
-		if (joinCode && /^\d{6}$/.test(joinCode) && randomName) {
-			isConnecting = true;
-			try {
-				await gameStore.joinByCode(joinCode.trim(), randomName.trim());
-				goto(`/game/lobby`);
-			} catch (err) {
-				console.error(err);
-				alert('cannot find room, please try another code');
-			} finally {
-				isConnecting = false;
-			}
-		} else {
-			if (!joinCode) alert('no code entered');
-			else if (!randomName) alert('please enter a name');
-			else alert('bad code');
+		if (inputtedName === '') {
+			alert('Please enter a name');
+			return;
+		}
+		if (joinCode === '') {
+			alert('Please enter a join code first');
+			return;
+		}
+		if (!/^\d{6}$/.test(joinCode)) {
+			alert('Code must be 6 digits');
+			return;
+		}
+		isConnecting = true;
+		try {
+			await gameStore.joinByCode(joinCode.trim(), randomName.trim());
+			goto(`/game/lobby`);
+		} catch (err) {
+			console.error(err);
+			alert('cannot find room, please try another code');
+		} finally {
+			isConnecting = false;
 		}
 	}
 
@@ -65,7 +69,7 @@
 		<Card.Header class="flex justify-between">
 			<Card.Title>Trey's Scavenge Game</Card.Title>
 			<Dialog.Root bind:open={isScannerOpen}>
-				<Dialog.Trigger class={buttonVariants({ variant: 'outline' })}>
+				<Dialog.Trigger class={buttonVariants({ variant: 'outline', size: 'icon' })}>
 					<ScanQRCode />
 				</Dialog.Trigger>
 				<Dialog.Content>
@@ -73,8 +77,7 @@
 						onscan={(result) => {
 							joinCode = result;
 							isScannerOpen = false;
-							//TODO: SWITCH BACK TO if (name)
-							if (randomName) {
+							if (inputtedName) {
 								joinRoom();
 							}
 						}}
@@ -85,8 +88,7 @@
 		<Card.Content class="flex flex-col gap-4">
 			<div class="flex w-full max-w-sm flex-col gap-1.5">
 				<Label for="nameInput">Name</Label>
-				<!-- TODO: SWITCH BACK TO bind:value={name} -->
-				<Input id="nameInput" type="name" bind:value={randomName} placeholder={randomName} />
+				<Input id="nameInput" type="name" bind:value={inputtedName} placeholder={randomName} />
 			</div>
 			<div class="flex w-full max-w-sm flex-col gap-1.5">
 				<Label for="joinCodeInput">Join Code</Label>
