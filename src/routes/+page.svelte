@@ -14,22 +14,21 @@
 
 	let randomName: string = '';
 	let joinCode: string = '';
+
 	let inputtedName: string = '';
 	let isScannerOpen: boolean = false;
 
 	async function hostRoom() {
-		if (randomName) {
-			isConnecting = true;
-			try {
-				await gameStore.createRoom(randomName);
-				goto(`/game/lobby`);
-			} catch (err) {
-				console.error(err);
-			} finally {
-				isConnecting = false;
-			}
-		} else {
+		if (inputtedName === '') {
 			alert('Please enter a name');
+			return;
+		}
+
+		try {
+			await gameStore.createRoom(randomName);
+			goto(`/game/lobby`);
+		} catch (err) {
+			console.error(err);
 		}
 	}
 
@@ -46,15 +45,13 @@
 			alert('Code must be 6 digits');
 			return;
 		}
-		isConnecting = true;
+
 		try {
 			await gameStore.joinByCode(joinCode.trim(), randomName.trim());
 			goto(`/game/lobby`);
 		} catch (err) {
 			console.error(err);
 			alert('cannot find room, please try another code');
-		} finally {
-			isConnecting = false;
 		}
 	}
 
