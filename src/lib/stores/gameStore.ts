@@ -4,12 +4,18 @@ import type { Room } from 'colyseus.js';
 import { goto } from '$app/navigation';
 import { GameRoomState } from '$lib/schema/GameRoomState';
 import { GameSettings } from '$lib/schema/GameSettings';
+import { dev } from '$app/environment';
+
+
+const apiUrl = dev 
+  ? 'https://localhost:2567/' 
+  : 'https://scavenge.navinate.com';
 
 const navDelay = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
 function createGameStore() {
 	const { subscribe, set } = writable<GameRoomState>(new GameRoomState());
-	const client = new Client('https://192.168.50.133:2567');
+	const client = new Client(apiUrl);
 	let currentRoom: Room | null = null;
 
 	function setupRoomListeners(room: Room) {
