@@ -28,6 +28,11 @@ function createGameStore() {
 			goto('/game/voting');
 		});
 
+		room.onMessage('round_results', async () => {
+			await delay(1000);
+			goto('/game/round-results');
+		})
+
 		room.onMessage('game_complete', () => {
 			console.log('Game completed!');
 		});
@@ -85,6 +90,9 @@ function createGameStore() {
 		startGame(gameSettings: GameSettings) {
 			this.sendMessage('game_start', gameSettings);
 		},
+		nextRound() {
+			this.sendMessage('next_round');
+		},
 		sendMessage(type: string, data?: unknown) {
 			if (!currentRoom) {
 				throw new Error('Room not available');
@@ -95,6 +103,7 @@ function createGameStore() {
 			if (!currentRoom) {
 				throw new Error('Room not available');
 			}
+			console.log("I voted for: ",selectedPhotoName);
 			currentRoom.send('vote_submit', {
 				name: selectedPhotoName,
 				voter: currentRoom.sessionId

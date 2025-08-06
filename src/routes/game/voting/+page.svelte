@@ -28,8 +28,9 @@
                 onclick={() => (selectedPhotoIndex = index)}
                 type="button"
             >
+            <!-- TODO REMOVE ABSOLUTE BEFORE BUILDING -->
                 <img
-                    src={photo.filePath}
+                    src={`https://192.168.50.133:2567${photo.filePath}`}
                     alt="Player submission"
                     class="h-full w-full object-cover"
                 />
@@ -40,6 +41,6 @@
     {#if !voted}
         <Button disabled={selectedPhotoIndex === null} onclick={submitVote}>Submit Vote!</Button>
     {:else}
-        <h4>Voted!</h4>
+        <Button disabled>Voted!</Button>
     {/if}
 </main>
