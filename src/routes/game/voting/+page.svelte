@@ -5,6 +5,7 @@
 	import type { Room } from 'colyseus.js';
 	import { onMount } from 'svelte';
 	import { dev } from '$app/environment';
+	import { Photo } from '$lib/schema/Photo';
 
 	const apiUrl = dev ? 'http://localhost:2567' : 'https://scavenge.navinate.com';
 	const currentRound = $derived($gameStore.rounds[$gameStore.roundIndex]);
@@ -46,12 +47,12 @@
 			{#each votingPhotos || [] as photo, index (photo.playerID)}
 				<div
 					class="cursor-pointer overflow-hidden transition-all duration-200 active:scale-95
-                        {photo.playerID === currentPlayerID ? 'hidden' : ''}"
-				>
+					{photo.playerID === currentPlayerID ? 'grayscale' : ''}">
 					<button
 						class="relative h-full w-full"
 						onclick={() => (selectedPhotoIndex = index)}
 						type="button"
+						disabled={photo.playerID === currentPlayerID}
 					>
 						<div class="relative aspect-square overflow-hidden">
 							<img
@@ -72,7 +73,11 @@
 							{/if}
 							<div class="absolute right-0 bottom-0 left-0 rounded-lg bg-black/60 p-2 text-white">
 								<p class="truncate text-center text-xs font-medium sm:text-sm">
+									{#if photo.playerID === currentPlayerID}
+									Your Photo
+									{:else}
 									{getPlayerName(photo.playerID)}
+									{/if}
 								</p>
 							</div>
 						</div>
