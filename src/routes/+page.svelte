@@ -25,7 +25,7 @@
 		}
 
 		try {
-			await gameStore.createRoom(randomName);
+			await gameStore.createRoom(inputtedName);
 			goto(`/game/lobby`);
 		} catch (err) {
 			console.error(err);
@@ -47,7 +47,7 @@
 		}
 
 		try {
-			await gameStore.joinByCode(joinCode.trim(), randomName.trim());
+			await gameStore.joinByCode(joinCode.trim(), inputtedName.trim());
 			goto(`/game/lobby`);
 		} catch (err) {
 			console.error(err);

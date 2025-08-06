@@ -16,13 +16,13 @@ export async function compressImage(
 
 			// Draw and compress
 			ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-			resolve(canvas.toDataURL('image/webp', quality));
+			resolve(canvas.toDataURL('image/jpeg', quality));
 		};
 		img.src = dataUrl;
 	});
 }
 
 export function uint8ArrayToDataURL(uint8Array: Uint8Array): string {
-	const blob = new Blob([uint8Array], { type: 'image/webp' });
+	const blob = new Blob([uint8Array], { type: 'image/jpeg' });
 	return URL.createObjectURL(blob);
 }
